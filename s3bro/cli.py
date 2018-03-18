@@ -70,7 +70,7 @@ def purge(purge, bucket, prefix, log_level):
 @click.argument('scanperms', nargs=-1)
 @click.option('--bucket','-b', type=str, help='Bucket name', required=True)
 @click.option('--prefix', '-p', type=str, default='', help='prefix name - optional')
-@click.option('--bucket-level-only', '-bl', is_flag=True, help="Only scan at bucket level")
+@click.option('--bucket-level-only', '-bl', is_flag=True, help="Only scan bucket level")
 @click.option('--object-level-only', '-ol', is_flag=True, help="Only scan object level")
 @click.option('--workers', type=int, help='How many helpers to include in task, default is 10', default=10)
 @click.option('--log-level', type=click.Choice(['INFO', 'ERROR', 'DEBUG', 'WARNING']), help='logging type', default='ERROR')

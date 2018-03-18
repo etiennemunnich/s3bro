@@ -9,8 +9,8 @@ public_perms = "http://acs.amazonaws.com/groups/global/AllUsers"
 
 
 def get_bucket_permission(bucket):
-    s3 = boto3.resource( 's3' )
-    bkt = s3.Bucket( bucket )
+    s3 = boto3.resource('s3')
+    bkt = s3.Bucket(bucket)
     bucket_acl = bkt.Acl().grants
     owner = bkt.Acl().owner['ID']
     perms = {'Public': [], 'Canonical': [], 'Owner': []}
@@ -28,13 +28,13 @@ def get_bucket_permission(bucket):
                 perms['Canonical'].append(data)
             if owner == o:
                 perms['Owner'].append( p['Permission'] )
-    print('Bucket: %s' %bucket)
-    print("Owner ID: %s" %owner)
+    print('Bucket: %s' % bucket)
+    print("Owner ID: %s" % owner)
     if perms['Public']:
         print(colored('Public Access: %s', 'red')) % perms['Public']
     if perms['Canonical']:
         for i in perms['Canonical']:
-            print(colored("Canonical: %s %s", 'yellow') %(i['CanonicalID'], i['Permission']))
+            print(colored("AWS Account: %s %s", 'yellow') % (i['CanonicalID'], i['Permission']))
     print(colored('Bucket Owner: %s', 'green')) % ', '.join(perms['Owner'])
 
 
@@ -81,10 +81,10 @@ def scan_key_perms(scanperms, bucket, prefix, workers, object_level_only):
     click.echo(30*'=')
     click.echo('>> Scanning objects with PUBLIC ACL')
     print(150 * "-")
-    print("Public {} | Canonical {} | Owner {}| Key {}").format("".ljust(18), "".ljust(15), "".ljust(20), "".ljust(60))
+    print("Public {} | Other AWS Accounts {} | Owner {}| Key {}").format("".ljust(18), "".ljust(6), "".ljust(20), "".ljust(60))
     print(150*"-")
     objects = []
-    iterator = bkt.objects.filter( Prefix=prefix )
+    iterator = bkt.objects.filter(Prefix=prefix)
     processed = False
     for k in iterator:
         processed = False
