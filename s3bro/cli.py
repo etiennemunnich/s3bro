@@ -1,4 +1,5 @@
 import click
+import boto3
 from termcolor import colored
 from s3_restore import *
 from s3_empty_bucket import *
@@ -20,6 +21,8 @@ def cli():
     https://pypi.org/project/s3bro/
     
     """
+    global s3cli
+    s3cli = boto3.client('s3')
     pass
 
 
@@ -42,6 +45,9 @@ def abort_if_false(ctx, param, value):
 @click.option('--workers', type=int, help='How many helpers to include in task, default is 10', default=10)
 @click.option('--log-level', type=click.Choice(['INFO', 'ERROR', 'DEBUG', 'WARNING']), help='logging type', default='ERROR')
 def restore(restore, bucket, prefix, days, type, versions, update_restore_date, workers, include, exclude, log_level):
+    """
+    restore glacier objects from s3
+    """
     if type == "Expedited":
         print(colored('Note: ', 'yellow') + "Expedited requests will likely be throttled. If you want to avoid this please check: ")
         click.echo('https://docs.aws.amazon.com/AmazonS3/latest/dev/restoring-objects.html#restoring-objects-expedited-capacity')
@@ -62,23 +68,45 @@ def restore(restore, bucket, prefix, days, type, versions, update_restore_date, 
               prompt="I'm going to delete everything in your bucket, are you really sure?", help="second confirmation")
 @click.option('--log-level', type=click.Choice(['INFO', 'ERROR', 'DEBUG', 'WARNING']), help='logging type', default='ERROR')
 def purge(purge, bucket, prefix, log_level):
+    """ 
+    delete all the bucket content
+    """
     loglevel(log_level)
     clean_bucket(bucket, prefix)
 
 
-@cli.command()
-@click.argument('scanperms', nargs=-1)
+@cli.command('scan-objects')
+@click.argument('scan-objects', nargs=-1)
 @click.option('--bucket','-b', type=str, help='Bucket name', required=True)
 @click.option('--prefix', '-p', type=str, default='', help='prefix name - optional')
-@click.option('--bucket-level-only', '-bl', is_flag=True, help="Only scan bucket level")
-@click.option('--object-level-only', '-ol', is_flag=True, help="Only scan object level")
 @click.option('--workers', type=int, help='How many helpers to include in task, default is 10', default=10)
 @click.option('--log-level', type=click.Choice(['INFO', 'ERROR', 'DEBUG', 'WARNING']), help='logging type', default='ERROR')
-def scanperms(scanperms, bucket, prefix, workers, log_level, bucket_level_only, object_level_only):
+def scan_objects(scan_objects, bucket, prefix, workers, log_level):
+    """
+    scan object ACLs
+    """
     loglevel(log_level)
-    if bucket_level_only:
+    scan_key_perms(scan_objects, bucket, prefix, workers)
+
+
+@cli.command('scan-bucket')
+@click.argument('scan-bucket', nargs=-1)
+@click.option('--bucket','-b', type=str, help='Bucket name')
+@click.option('--all', '-A', is_flag=True, help="Scan permissions for all your buckets (don't combine -b with -A)")
+@click.option('--log-level', type=click.Choice(['INFO', 'ERROR', 'DEBUG', 'WARNING']), help='logging type', default='ERROR')
+def scan_bucket(scan_bucket, bucket, all, log_level):
+    """
+    scan bucket ACLs
+    """
+    if bucket is None and all is False:
+        print('Either choose --bucket or --all option')
+        quit()
+    if bucket is not None and all is True:
+        print('pick one dude, you want to scan one bucket (-b) or all (-A)?')
+        quit()
+    if all:
+        bucket_list = [x['Name'] for x in s3cli.list_buckets()['Buckets']]
+        for x in bucket_list:
+            get_bucket_permission(x)
+    elif bucket is not None:
         get_bucket_permission(bucket)
-    else:
-        scan_key_perms(scanperms, bucket, prefix, workers, object_level_only)
-
-

@@ -61,7 +61,8 @@ Available Commands
 ******************
 - restore_
 - purge_
-- scanperms_
+- scan-bucket_
+- scan-objects_
 
 
 ============
@@ -72,9 +73,10 @@ Examples
 
     # s3bro restore --help
     # s3bro restore --bucket bucketName --prefix myglacierPrefix --days 20 --type Bulk
-    # s3bro restore --bucket bucketName --prefix myglacierPrefix --days 20 --type Bulk --include .css --versions
-    # s3bro restore --bucket bucketName --prefix myglacierPrefix --days 20 --type Bulk --exclude .exe --update-restore-date
+    # s3bro restore --bucket bucketName --prefix myglacierPrefix --days 20 --type Standard --include .css --versions
     # s3bro purge --bucket bucketName
+    # s3bro scan-objects --bucket bucketName
+    # s3bro scan-bucket --all
 
 ============
 Commands
@@ -150,19 +152,38 @@ Details
 * it does not delete the bucket. It only delete the keys
 
 ***************
-scanperms
+scan-bucket
 ***************
-Look for objects with Public permissions in your bucket
+scan bucket ACLs
 
 Options
 ------------------
 >>>
-Usage: s3bro scanperms [OPTIONS] [SCANPERMS]...
+Usage: s3bro scan-bucket [OPTIONS] [SCAN_BUCKET]...
+  scan bucket ACLs
+Options:
+  -b, --bucket TEXT               Bucket name
+  -A, --all                       Scan permissions for all your buckets (don't
+                                  combine -b with -A)
+  --log-level [INFO|ERROR|DEBUG|WARNING]
+                                  logging type
+  --help                          Show this message and exit.
+
+
+***************
+scan-objects
+***************
+scan object ACLs
+
+Options
+------------------
+
+>>>
+Usage: s3bro scan-objects [OPTIONS] [SCAN_OBJECTS]...
+  scan object ACLs
 Options:
   -b, --bucket TEXT               Bucket name  [required]
   -p, --prefix TEXT               prefix name - optional
-  -bl, --bucket-level-only        Only scan at bucket level
-  -ol, --object-level-only        Only scan object level
   --workers INTEGER               How many helpers to include in task, default
                                   is 10
   --log-level [INFO|ERROR|DEBUG|WARNING]
@@ -171,5 +192,4 @@ Options:
 
 Details
 ^^^^^^^^^^^^^^^^^^
-* The scanperms actions does not scan all versions. Only current versions
-
+* scan-objects only scan current versions of your objects

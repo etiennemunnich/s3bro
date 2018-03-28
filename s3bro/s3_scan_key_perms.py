@@ -29,13 +29,14 @@ def get_bucket_permission(bucket):
             if owner == o:
                 perms['Owner'].append( p['Permission'] )
     print('Bucket: %s' % bucket)
-    print("Owner ID: %s" % owner)
+    print("        Owner ID: %s" % owner)
     if perms['Public']:
-        print(colored('Public Access: %s', 'red')) % perms['Public']
+        print(colored('        Public Access: %s', 'red')) % perms['Public']
     if perms['Canonical']:
         for i in perms['Canonical']:
-            print(colored("AWS Account: %s %s", 'yellow') % (i['CanonicalID'], i['Permission']))
-    print(colored('Bucket Owner: %s', 'green')) % ', '.join(perms['Owner'])
+            print(colored("        AWS Account: %s %s", 'yellow') % (i['CanonicalID'], i['Permission']))
+    print(colored('        Bucket Owner: %s', 'green')) % ', '.join(perms['Owner'])
+    print('\n')
 
 
 def get_permission(x):
@@ -71,13 +72,11 @@ def get_permission(x):
             logging.warning('Key is Safe: %s' % key)
 
 
-def scan_key_perms(scanperms, bucket, prefix, workers, object_level_only):
+def scan_key_perms(scanperms, bucket, prefix, workers):
     s3 = boto3.resource( 's3' )
     bkt = s3.Bucket( bucket )
     owner = bkt.Acl().owner['ID']
-    if not object_level_only:
-        click.echo( '>> Scanning bucket ACL' )
-        get_bucket_permission(bucket)
+    click.echo( '>> Scanning bucket ACL' )
     click.echo(30*'=')
     click.echo('>> Scanning objects with PUBLIC ACL')
     print(150 * "-")
