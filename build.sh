@@ -4,7 +4,7 @@ if [ "$1" == "make" ]; then
     $0 clean > /dev/null
     virtualenv build_env
     source build_env/bin/activate
-    pip install twine
+    pip install twine --no-cache-dir
     python2.7 setup.py sdist
 elif [ "$1" == "clean" ]; then
     echo -n "Roger that. "

@@ -120,6 +120,6 @@ def scan_bucket(scan_bucket, bucket, all, log_level):
                                                 'the resources created after this time', required=True)
 def tail(tail, bucket, timeout):
     """ 
-    tail bucket 
+    s3 logs in "real-time" through S3 Events (for puts and deletes only)
     """
     tail_init(bucket, timeout)

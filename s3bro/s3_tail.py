@@ -4,7 +4,7 @@ import random
 import string
 import json
 import time
-import logging
+import os
 from termcolor import colored
 
 
@@ -12,6 +12,9 @@ s3 = boto3.client('s3')
 
 
 def create_queue(bucket, bucket_location):
+    click.echo('[ Preparing services ]')
+    print(50*'=')
+    click.echo('Creating a SQS in %s ...' % bucket_location)
     sqs = boto3.client('sqs', region_name=bucket_location)
     char_set = string.ascii_uppercase + string.digits
     response = sqs.create_queue(
@@ -24,7 +27,9 @@ def create_queue(bucket, bucket_location):
     account = data[3]
     q_name = data[4]
     arn = "arn:aws:sqs:%s:%s:%s" % (bucket_location, account, q_name)
-    return {'arn': arn, 'url': url, 'account_id': account}
+    data = {'arn': arn, 'url': url, 'account_id': account}
+    click.echo("Queue: %s" % data['arn'])
+    return data
 
 
 def add_queue_permission(q_url, q_arn, bucket_location):
@@ -46,7 +51,14 @@ def add_queue_permission(q_url, q_arn, bucket_location):
     sqs.set_queue_attributes(QueueUrl=q_url, Attributes={'Policy': json.dumps(policy), })
 
 
+# def get_s3_notification(bucket):
+#     response = s3.get_bucket_notification_configuration(Bucket=bucket)
+#     print(response)
+
+
 def enable_s3_notification(bucket, queue):
+    get_s3_notification(bucket)
+    click.echo('Enabling s3 event (s3tail-Event) notification on %s ...' % bucket)
     response = s3.put_bucket_notification_configuration(
         Bucket=bucket,
         NotificationConfiguration={
@@ -60,6 +72,7 @@ def enable_s3_notification(bucket, queue):
             ]
         }
     )
+    print(50*'=')
     return response
 
 
@@ -78,19 +91,21 @@ def delete_resources(q_url, bucket, bucket_location):
 
 
 def parsed_output(msg):
-    eventTime = msg.get('eventTime')
-    eventName = msg.get('eventName')
-    userIdentity = msg.get('userIdentity').get('principalId')
-    ipAddress = msg.get('requestParameters').get('sourceIPAddress')
-    xAmzId = msg.get('responseElements').get('x-amz-request-id')
-    xAmzId2 = msg.get('responseElements').get('x-amz-id-2')
+    event_time = msg.get('eventTime')
+    event_name = msg.get('eventName')
+    user_identity = msg.get('userIdentity').get('principalId')
+    ip_address = msg.get('requestParameters').get('sourceIPAddress')
+    x_amz_id = msg.get('responseElements').get('x-amz-request-id')
+    host_id = msg.get('responseElements').get('x-amz-id-2')
     key = msg.get('s3').get('object').get('key')
+    size = msg.get('s3').get('object').get('size')
     v_id = msg.get('s3').get('object').get('versionId')
-    return [ipAddress, eventTime, key, v_id, eventName, userIdentity, xAmzId, xAmzId2]
+    return [ip_address, event_time, key, str(size), str(v_id), event_name, user_identity, x_amz_id, host_id]
 
 
 def s3tail(q_url, min, bucket, bucket_location):
     sqs = boto3.client('sqs', region_name=bucket_location)
+
     timeout = time.time() + 60 * min
     try:
         while True:
@@ -105,10 +120,11 @@ def s3tail(q_url, min, bucket, bucket_location):
             )
             try:
                 raw_msg = response['Messages']
-                msg = json.loads(raw_msg[0].get('Body'))
-                if msg.get('Records') is not None:
-                    notification = msg.get('Records')[0]
-                    print(' '.join(parsed_output(notification)))
+                for m in raw_msg:
+                    msg = json.loads( m.get('Body'))
+                    if msg.get('Records') is not None:
+                        notification = msg.get('Records')[0]
+                        print(' '.join(parsed_output(notification)))
             except KeyError as e:
                 pass
 
@@ -127,29 +143,25 @@ def resource_confirmation():
     if res != 'agreed':
         print('Read the above message entirely')
         resource_confirmation()
+    else:
+        os.system( 'cls' if os.name == 'nt' else 'clear' )
 
 
-def tail_init(bucket, timeout):
+def get_bucket_location(bucket):
     get_location = s3.get_bucket_location(Bucket=bucket)
     if get_location['LocationConstraint'] is None:
         bucket_location = 'us-east-1'
     else:
         bucket_location = get_location['LocationConstraint']
+    return bucket_location
 
+
+def tail_init(bucket, timeout):
+    bucket_location = get_bucket_location(bucket)
     resource_confirmation()
-
-    # create queue
-    click.echo('Preparing services...\nCreating a SQS in %s ...' % bucket_location)
     queue = create_queue(bucket, bucket_location)
-    click.echo("Queue: %s" % queue['arn'])
-
-    # enable notification
-    click.echo('Enabling s3 event notification on %s ...' % bucket)
     add_queue_permission(queue['url'], queue['arn'], bucket_location)
     enable_s3_notification(bucket, queue['arn'])
-
-    # starting tail
-    print(30*'=')
     s3tail(queue['url'], timeout, bucket, bucket_location)
 
 

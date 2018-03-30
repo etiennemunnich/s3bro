@@ -7,8 +7,11 @@
 ============
 Overview
 ============
-It's your s3 friend (bro). Often you'll need to run complex CLI/AWS commands in order to execute tasks against S3.  Let's say you need to restore all your keys from S3 Glacier storage class, we know (probably) that AWS CLI does not provide an easy way to execute this in "batch". So you would need to mix aws cli commands and pipe it to additional commands. Additionally, it would restore key by key, very slowly.
-The s3bro does it for you nicely using multiprocessing/threading. That means that you can get your tasks done way faster than using the normal method. Oh, also in an elegant way. This is a python cli that will abstract a big portion of this work for you.
+It's your s3 friend (bro). You’ll often find yourself having to run complex CLI/AWS commands in order to execute tasks against S3.  Let's say you need to restore all your keys from S3 Glacier storage class, if you’ve attempted this task, you’ve probably come to the realization, that the AWS CLI does not allow for an easy manner to execute this in “batch”.
+
+Subsequently, you would need to make use of a combination of AWS CLI commands and pipe it to additional commands in order to obtain your desired result. In addition to this complexity, it would restore key by key, very slowly.
+
+S3bro, however, offers you a solution to the above problem, by utilizing multiprocessing/threading. This means that you can expedite tasks a lot faster than using the normal method. Oh, did I mention… in a much more elegant way. This is a python cli that will abstract a big portion of the work for you.
 
 Why would you run the two following commands to wipe your bucket:
 
@@ -63,6 +66,7 @@ Available Commands
 - purge_
 - scan-bucket_
 - scan-objects_
+- tail_
 
 
 ============
@@ -77,6 +81,7 @@ Examples
     # s3bro purge --bucket bucketName
     # s3bro scan-objects --bucket bucketName
     # s3bro scan-bucket --all
+    # s3bro tail --bucket bucketName --timeout 1
 
 ============
 Commands
@@ -105,8 +110,8 @@ Options:
   -in, --include TEXT             Only restore keys that matches with a given
                                   string, you can add multiples times by
                                   passing --include multiple times
-  -ex, --exclude TEXT             Do not restore if key name matches with a
-                                  given pattern,you can add multiple patterns
+  -ex, --exclude TEXT             Do not restore if the key name matches with a
+                                  given pattern, you can add multiple patterns
                                   by inputting
   --workers INTEGER               How many helpers to include in task, default
                                   is 10
@@ -117,10 +122,10 @@ Options:
 Details
 ^^^^^^^^^^^^^^^^^^
 
-the option --log-level is can be useful to debug errors/behaviors.
+the option --log-level can be useful to debug errors/behaviors.
 
 >>>
-DEBUG - similar to boto3 debug leve with additional information
+DEBUG - similar to boto3 debug level with additional information
 WARNING - will print some threading information and Keys excluded during the iteration (exclude, include, storage-class, delete-marker, etc)
 
 * the option --workers allows you to specify how many workers will consume the list. Calculate max 5 workers per core
@@ -149,7 +154,7 @@ Options:
 Details
 ^^^^^^^^^^^^^^^^^^
 
-* it does not delete the bucket. It only delete the keys
+* it does not delete the bucket. It only deletes the keys
 
 ***************
 scan-bucket
@@ -193,3 +198,31 @@ Options:
 Details
 ^^^^^^^^^^^^^^^^^^
 * scan-objects only scan current versions of your objects
+
+***************
+tail
+***************
+ s3 logs in "real-time" through S3 Events (for puts and deletes only)
+
+Options
+------------------
+>>>
+Usage: s3bro tail [OPTIONS] [TAIL]...
+  tail is an S3 real-time logging tool. It makes use of S3 events (for puts and deletes only)
+Options:
+  -b, --bucket TEXT      Bucket name  [required]
+  -t, --timeout INTEGER  How much time (in minutes) to run, it will destroy
+                         the resources created after this time  [required]
+  --help                 Show this message and exit.
+
+Details
+^^^^^^^^^^^^^^^^^^
+Basically what it does is:
+
+1. Create an SQS
+2. Create an S3 Event notification
+3. Connect to the queue and keep retrieving the messages until the timeout time is reached.
+4. Delete the resources created
+
+>>> --timeout is in minutes
+>>> it only works for PUTs and Deletes (s3 events does not support GET requests)
