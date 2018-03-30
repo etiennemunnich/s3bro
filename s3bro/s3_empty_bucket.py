@@ -6,7 +6,7 @@ import time, sys
 
 def clean_bucket(bucket, prefix):
     s3 = boto3.resource( 's3' )
-    click.echo('I will start the cleaning %s in 10 seconds, you still have the chance to stop' %bucket)
+    click.echo('I will start the cleaning %s/%s in 10 seconds, you still have the chance to stop' % (bucket, prefix))
     for remaining in range( 10, 0, -1 ):
         sys.stdout.write( "\r" )
         sys.stdout.write( "{:2d} seconds remaining.".format( remaining ) )

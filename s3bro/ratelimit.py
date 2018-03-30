@@ -21,7 +21,7 @@ def rate_limited(max_per_second):
             left_to_wait = min_interval - elapsed
 
             if left_to_wait > 0:
-#                 logging.warning('throttled')
+                logging.warning('throttled')
                 time.sleep( left_to_wait )
 
             lock.release()

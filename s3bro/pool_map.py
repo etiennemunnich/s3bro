@@ -1,4 +1,3 @@
-import click
 from multiprocessing import Pool
 import logging
 

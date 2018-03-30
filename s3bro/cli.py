@@ -4,6 +4,7 @@ from termcolor import colored
 from s3_restore import *
 from s3_empty_bucket import *
 from s3_scan_key_perms import *
+from s3_tail import *
 from __init__ import *
 
 @click.group()
@@ -62,10 +63,10 @@ def restore(restore, bucket, prefix, days, type, versions, update_restore_date, 
 @click.option('--prefix', '-p', type=str, default='', help='prefix name - optional')
 @click.option('--yes', is_flag=True, callback=abort_if_false,
               expose_value=False,
-              prompt='Are you sure you want to wipe the bucket?', help="first confirmation")
+              prompt='Are you sure you want to continue with this deletion?', help="first confirmation")
 @click.option('--yes-really', is_flag=True, callback=abort_if_false,
               expose_value=False,
-              prompt="I'm going to delete everything in your bucket, are you really sure?", help="second confirmation")
+              prompt="Are you really sure you want to continue the deletion?", help="second confirmation")
 @click.option('--log-level', type=click.Choice(['INFO', 'ERROR', 'DEBUG', 'WARNING']), help='logging type', default='ERROR')
 def purge(purge, bucket, prefix, log_level):
     """ 
@@ -110,3 +111,15 @@ def scan_bucket(scan_bucket, bucket, all, log_level):
             get_bucket_permission(x)
     elif bucket is not None:
         get_bucket_permission(bucket)
+
+
+@cli.command()
+@click.argument('tail', nargs=-1)
+@click.option('--bucket','-b', type=str, help='Bucket name', required=True)
+@click.option('--timeout', '-t', type=int, help='How much time (in minutes) to run, it will destroy '
+                                                'the resources created after this time', required=True)
+def tail(tail, bucket, timeout):
+    """ 
+    tail bucket 
+    """
+    tail_init(bucket, timeout)
