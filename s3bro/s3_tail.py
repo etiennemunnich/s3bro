@@ -57,7 +57,7 @@ def add_queue_permission(q_url, q_arn, bucket_location):
 
 
 def enable_s3_notification(bucket, queue):
-    get_s3_notification(bucket)
+    # get_s3_notification(bucket)
     click.echo('Enabling s3 event (s3tail-Event) notification on %s ...' % bucket)
     response = s3.put_bucket_notification_configuration(
         Bucket=bucket,
