@@ -11,7 +11,7 @@ It's your s3 friend (bro). You’ll often find yourself having to run complex CL
 
 Subsequently, you would need to make use of a combination of AWS CLI commands and pipe it to additional commands in order to obtain your desired result. In addition to this complexity, it would restore key by key, very slowly.
 
-S3bro, however, offers you a solution to the above problem, by utilizing multiprocessing/threading. This means that you can expedite tasks a lot faster than using the normal method. Oh, did I mention… in a much more elegant way. This is a python cli that will abstract a big portion of the work for you.
+S3bro, however, offers you a solution to the above problem and others common situations where you have to run complex s3 commands, by utilizing multiprocessing/threading. This means that you can expedite tasks a lot faster than using the normal method. Oh, did I mention… in a much more elegant way. This is a python cli that will abstract a big portion of the work for you.
 
 Why would you run the two following commands to wipe your bucket:
 
