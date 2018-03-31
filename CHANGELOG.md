@@ -1,5 +1,8 @@
 # Changelog
 
+## [1.8]
+### changed
+- fixed errors with sqs name (replace . to _ )
 
 ## [1.6]
 ### Added | changed

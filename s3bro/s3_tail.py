@@ -17,8 +17,9 @@ def create_queue(bucket, bucket_location):
     click.echo('Creating a SQS in %s ...' % bucket_location)
     sqs = boto3.client('sqs', region_name=bucket_location)
     char_set = string.ascii_uppercase + string.digits
+
     response = sqs.create_queue(
-        QueueName=bucket + "_" + bucket_location + "_" + ''.join(random.sample(char_set*6, 6)),
+        QueueName=bucket.replace('.', '_') + "_" + bucket_location + "_" + ''.join(random.sample(char_set*6, 6)),
         Attributes={
             'MessageRetentionPeriod': '60'
     })
