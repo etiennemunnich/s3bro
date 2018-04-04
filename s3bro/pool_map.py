@@ -11,7 +11,7 @@ def multi_process(func, data, workers):
         p.map_async(func, data).get(9999999)
         p.close()
     except (KeyboardInterrupt, SystemExit):
-        print "Caught KeyboardInterrupt, terminating workers"
+        print("Caught KeyboardInterrupt, terminating workers")
     except Exception as e:
         print(e)
 

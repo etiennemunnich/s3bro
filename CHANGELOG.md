@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.9]
+### added
+- started the changes for python3 support
+
 ## [1.8]
 ### changed
 - fixed errors with sqs name (replace . to _ )
