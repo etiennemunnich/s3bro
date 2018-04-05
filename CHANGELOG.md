@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.0]
+### Changed
+- purge option - different confirmation method implemented (avoid unwanted deletions)
+- more changes to support p3 smoothly
+
 ## [1.9]
 ### added
 - started the changes for python3 support
