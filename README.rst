@@ -155,7 +155,7 @@ Options:
 Details
 ^^^^^^^^^^^^^^^^^^
 
-* The script has two confirmations. The first can be by-passed --yes. The second one ask you to confirm the bucket name.
+* The script has two confirmations. The first can be by-passed with --yes. The second one ask you to confirm the bucket name.
 * The second confirmation can be avoided if you create a Tag in the Bucket with Key: s3bro_delete and Value: yes . That will by pass the bucket name confirmation.
 
 ***************

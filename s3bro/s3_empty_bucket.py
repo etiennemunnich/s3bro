@@ -31,7 +31,7 @@ def delete_confirmation(bucket, prefix):
         print('Bucket: %s' % bucket)
         print('Prefix: %s' % print_prefix)
         print(30*'=')
-        r = raw_input("Confirm the bucket name you want to wipe out: ")
+        r = raw_input("Confirm the bucket name if you want to wipe the bucket content: ")
         if r == bucket:
             clean_bucket(bucket, prefix)
         else:
