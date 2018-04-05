@@ -135,31 +135,33 @@ WARNING - will print some threading information and Keys excluded during the ite
 ***************
 purge
 ***************
-Delete all keys in the bucket - as simple as that. It will delete versions, delete markers. Everything
+ Delete all keys in the bucket - as simple as that. It will delete versions, delete markers. Everything
 
 Options
 ------------------
 
 >>>
 Usage: s3bro purge [OPTIONS] [PURGE]...
+  delete all the bucket content
 Options:
   -b, --bucket TEXT               Bucket name  [required]
   -p, --prefix TEXT               prefix name - optional
   --yes                           first confirmation
-  --yes-really                    second confirmation
   --log-level [INFO|ERROR|DEBUG|WARNING]
                                   logging type
   --help                          Show this message and exit.
 
+
 Details
 ^^^^^^^^^^^^^^^^^^
 
-* it does not delete the bucket. It only deletes the keys
+* The script has two confirmations. The first can be by-passed --yes. The second one ask you to confirm the bucket name.
+* The second confirmation can be avoided if you create a Tag in the Bucket with Key: s3bro_delete and Value: yes . That will by pass the bucket name confirmation.
 
 ***************
 scan-bucket
 ***************
-scan bucket ACLs
+ scan bucket ACLs
 
 Options
 ------------------
@@ -178,7 +180,7 @@ Options:
 ***************
 scan-objects
 ***************
-scan object ACLs
+ scan object ACLs
 
 Options
 ------------------

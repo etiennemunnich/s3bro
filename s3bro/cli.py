@@ -64,16 +64,14 @@ def restore(restore, bucket, prefix, days, type, versions, update_restore_date, 
 @click.option('--yes', is_flag=True, callback=abort_if_false,
               expose_value=False,
               prompt='Are you sure you want to continue with this deletion?', help="first confirmation")
-@click.option('--yes-really', is_flag=True, callback=abort_if_false,
-              expose_value=False,
-              prompt="Are you really sure you want to continue the deletion?", help="second confirmation")
 @click.option('--log-level', type=click.Choice(['INFO', 'ERROR', 'DEBUG', 'WARNING']), help='logging type', default='ERROR')
 def purge(purge, bucket, prefix, log_level):
     """ 
     delete all the bucket content
     """
     loglevel(log_level)
-    clean_bucket(bucket, prefix)
+    # clean_bucket(bucket, prefix)
+    delete_confirmation( bucket, prefix )
 
 
 @cli.command('scan-objects')

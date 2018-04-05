@@ -2,11 +2,45 @@ import boto3
 import click
 import logging
 import time, sys
+from termcolor import colored
+
+
+def check_tagging(bucket):
+    has_confirmation = False
+    s3 = boto3.client( 's3' )
+    tag = s3.get_bucket_tagging(Bucket=bucket)
+    tags = tag.get('TagSet')
+    for x in tags:
+        if x.get('Key') == 's3bro_delete':
+            if x.get('Value') == "yes":
+                has_confirmation = True
+    return has_confirmation
+
+
+def delete_confirmation(bucket, prefix):
+    avoid_confirmation = check_tagging(bucket)
+    if avoid_confirmation is True:
+        clean_bucket(bucket, prefix)
+    else:
+        if prefix is '':
+            print_prefix = '/'
+        else:
+            print_prefix = prefix
+        print(colored('[Warning] This action is not reversible', 'red'))
+        print(30*'=')
+        print('Bucket: %s' % bucket)
+        print('Prefix: %s' % print_prefix)
+        print(30*'=')
+        r = raw_input("Confirm the bucket name you want to wipe out: ")
+        if r == bucket:
+            clean_bucket(bucket, prefix)
+        else:
+            print('something is not right with the confirmation')
 
 
 def clean_bucket(bucket, prefix):
     s3 = boto3.resource( 's3' )
-    click.echo('I will start the cleaning %s/%s in 10 seconds, you still have the chance to stop' % (bucket, prefix))
+    click.echo('I will start the deletion of %s/%s in 10 seconds, you still have the chance to stop' % (bucket, prefix))
     for remaining in range( 10, 0, -1 ):
         sys.stdout.write( "\r" )
         sys.stdout.write( "{:2d} seconds remaining.".format( remaining ) )
