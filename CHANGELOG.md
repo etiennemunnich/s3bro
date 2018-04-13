@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.1]
+### Added
+- find-unencrypted option added. You can scan for keys without encryption
+
 ## [2.0]
 ### Changed
 - purge option - different confirmation method implemented (avoid unwanted deletions)

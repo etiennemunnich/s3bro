@@ -59,6 +59,10 @@ From source
 
     ``pip install -e .``
 
+
+ Note: For python3 you may have some issues due the unicode handling that has changed in Python3. The solution to these problems is different depending on which locale your computer is running in.
+Generally "export LANG=en_US.utf-8" solves (put your LANG). More infos: http://click.pocoo.org/5/python3/
+
 ******************
 Available Commands
 ******************
@@ -67,6 +71,7 @@ Available Commands
 - scan-bucket_
 - scan-objects_
 - tail_
+- find-unencrypted_
 
 
 ============
@@ -228,3 +233,31 @@ Basically what it does is:
 
 >>> --timeout is in minutes
 >>> it only works for PUTs and Deletes (s3 events does not support GET requests)
+
+***************
+find-unencrypted
+***************
+ find unencrypted keys in a bucket
+
+Options
+------------------
+
+>>>
+Usage: s3bro find-unencrypted [OPTIONS] [FIND_UNENCRYPTED]...
+  find unencrypted keys in a bucket (ServerSideEncryption)
+Options:
+  -b, --bucket TEXT               Bucket name  [required]
+  -p, --prefix TEXT               prefix name - optional
+  -v, --versions / --no-versions  [--no-versions is DEFAULT] - this option
+                                  will make the restore to include all
+                                  versions excluding delete markers
+  --workers INTEGER               How many helpers to include in task, default
+                                  is 10
+  --log-level [INFO|ERROR|DEBUG|WARNING]
+                                  logging type
+  --help                          Show this message and exit.
+
+Details
+^^^^^^^^^^^^^^^^^^
+
+* it only print defailt for unencrypted keys. If you to check all the keys encryption status, run --log-level WARNING

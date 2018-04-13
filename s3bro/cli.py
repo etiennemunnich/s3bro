@@ -5,6 +5,7 @@ from s3_restore import *
 from s3_empty_bucket import *
 from s3_scan_key_perms import *
 from s3_tail import *
+from s3_encryption_status import *
 from __init__ import *
 
 @click.group()
@@ -121,3 +122,18 @@ def tail(tail, bucket, timeout):
     s3 logs in "real-time" through S3 Events (for puts and deletes only)
     """
     tail_init(bucket, timeout)
+
+
+@cli.command('find-unencrypted')
+@click.argument('find-unencrypted', nargs=-1)
+@click.option('--bucket','-b', type=str, help='Bucket name', required=True)
+@click.option('--prefix', '-p', type=str, default='', help='prefix name - optional')
+@click.option('--versions/--no-versions','-v', default=False, help='[--no-versions is DEFAULT] - this option will make the restore to include all versions excluding delete markers')
+@click.option('--workers', type=int, help='How many helpers to include in task, default is 10', default=10)
+@click.option('--log-level', type=click.Choice(['INFO', 'ERROR', 'DEBUG', 'WARNING']), help='logging type', default='ERROR')
+def find_unencrypted(find_unencrypted, bucket, prefix, versions, workers, log_level):
+    """ 
+    find unencrypted keys in a bucket (ServerSideEncryption)
+    """
+    loglevel(log_level)
+    find_unencrypted_keys(bucket, prefix, versions, workers)
