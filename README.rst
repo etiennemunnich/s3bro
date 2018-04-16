@@ -260,4 +260,4 @@ Options:
 Details
 ^^^^^^^^^^^^^^^^^^
 
-* it only print defailt for unencrypted keys. If you to check all the keys encryption status, run --log-level WARNING
+* it only print details for unencrypted keys. If you to check all the keys encryption status, run --log-level WARNING
