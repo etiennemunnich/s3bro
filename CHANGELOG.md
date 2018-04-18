@@ -1,4 +1,7 @@
 # Changelog
+## [2.2]
+### Fixed
+- bug fixes for scan-bucket when the bucket ACL has a restrictive policy
 
 ## [2.1]
 ### Added

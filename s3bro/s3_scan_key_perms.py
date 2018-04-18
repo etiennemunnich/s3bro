@@ -11,32 +11,40 @@ public_perms = "http://acs.amazonaws.com/groups/global/AllUsers"
 def get_bucket_permission(bucket):
     s3 = boto3.resource('s3')
     bkt = s3.Bucket(bucket)
-    bucket_acl = bkt.Acl().grants
-    owner = bkt.Acl().owner['ID']
-    perms = {'Public': [], 'Canonical': [], 'Owner': []}
-    for p in bucket_acl:
-        if p['Grantee']['Type'] == "Group":
-            if p['Grantee']['URI'] == public_perms:
-                perms['Public'].append(p['Permission'])
-        if p['Grantee']['Type'] == "CanonicalUser":
-            o = p['Grantee']['ID']
-            if owner != o:
-                data = {
-                    'CanonicalID': o,
-                    'Permission': p['Permission']
-                }
-                perms['Canonical'].append(data)
-            if owner == o:
-                perms['Owner'].append( p['Permission'] )
-    print('Bucket: %s' % bucket)
-    print("        Owner ID: %s" % owner)
-    if perms['Public']:
-        print(colored('        Public Access: %s', 'red')) % perms['Public']
-    if perms['Canonical']:
-        for i in perms['Canonical']:
-            print(colored("        AWS Account: %s %s", 'yellow') % (i['CanonicalID'], i['Permission']))
-    print(colored('        Bucket Owner: %s', 'green')) % ', '.join(perms['Owner'])
-    print('\n')
+    failed = False
+    try:
+        bucket_acl = bkt.Acl().grants
+        owner = bkt.Acl().owner['ID']
+    except ClientError as e:
+        if e.response['Error']['Message'] == "Access Denied":
+            click.echo('Failed to retrieve Bucket ACLs for %s with error Access Denied\n' %bucket)
+            failed = True
+            pass
+    if not failed:
+        perms = {'Public': [], 'Canonical': [], 'Owner': []}
+        for p in bucket_acl:
+            if p['Grantee']['Type'] == "Group":
+                if p['Grantee']['URI'] == public_perms:
+                    perms['Public'].append(p['Permission'])
+            if p['Grantee']['Type'] == "CanonicalUser":
+                o = p['Grantee']['ID']
+                if owner != o:
+                    data = {
+                        'CanonicalID': o,
+                        'Permission': p['Permission']
+                    }
+                    perms['Canonical'].append(data)
+                if owner == o:
+                    perms['Owner'].append( p['Permission'] )
+        print('Bucket: %s' % bucket)
+        print("        Owner ID: %s" % owner)
+        if perms['Public']:
+            print(colored('        Public Access: %s', 'red')) % perms['Public']
+        if perms['Canonical']:
+            for i in perms['Canonical']:
+                print(colored("        AWS Account: %s %s", 'yellow') % (i['CanonicalID'], i['Permission']))
+        print(colored('        Bucket Owner: %s', 'green')) % ', '.join(perms['Owner'])
+        print('\n')
 
 
 def get_permission(x):
