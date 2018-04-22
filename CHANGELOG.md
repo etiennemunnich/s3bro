@@ -1,4 +1,9 @@
 # Changelog
+##[2.3]
+### Fixed
+- bug fixes - small changes in error handling for scan-bucket
+- renamed some functions because the old name was weird
+
 ## [2.2]
 ### Fixed
 - bug fixes for scan-bucket when the bucket ACL has a restrictive policy

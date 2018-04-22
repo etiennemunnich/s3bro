@@ -2,10 +2,10 @@ import click
 import boto3
 from termcolor import colored
 from s3_restore import *
-from s3_empty_bucket import *
-from s3_scan_key_perms import *
+from s3_purge import *
+from s3_permission import *
 from s3_tail import *
-from s3_encryption_status import *
+from s3_encryption import *
 from __init__ import *
 
 @click.group()

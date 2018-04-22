@@ -19,7 +19,9 @@ def get_bucket_permission(bucket):
         if e.response['Error']['Message'] == "Access Denied":
             click.echo('Failed to retrieve Bucket ACLs for %s with error Access Denied\n' %bucket)
             failed = True
-            pass
+        else:
+            print(e.response['Error']['Message'])
+            failed = True
     if not failed:
         perms = {'Public': [], 'Canonical': [], 'Owner': []}
         for p in bucket_acl:
@@ -73,7 +75,6 @@ def get_permission(x):
                     perms['Owner'].append( p['Permission'] )
 
         if perms['Public']:
-            # out = {'Key': key, 'Permissions': perms}
             out = {'Key': key, "Public": perms['Public'], "Canonical": perms['Canonical'], "Owner": perms['Owner']}
             print("{} | {} | {} | {}".format(", ".join(out['Public']).ljust(25), ", ".join(out['Canonical']).ljust(25), ", ".join(out['Owner']).ljust(25), out['Key'].ljust(50)))
         else:
